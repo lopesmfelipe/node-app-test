@@ -1,0 +1,20 @@
+{
+  "name": "test-node-app",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "dev": "node --loader ts-node-esm src/index.ts"
+  },
+  "keywords": [],
+  "author": "Felipe Magalhaes",
+  "license": "ISC",
+  "description": "This is a test nodejs app to follow with the udemy nodejs course",
+  "devDependencies": {
+    "@types/node": "^22.5.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}
