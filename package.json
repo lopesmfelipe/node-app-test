@@ -4,16 +4,29 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node dist/server.js",
     "build": "tsc",
-    "dev": "node --loader ts-node-esm src/index.ts"
+    "dev": "nodemon --exec \"node --loader ts-node/esm\" src/server.ts",
+    "debug": "ndb dist/server.js"
   },
   "keywords": [],
   "author": "Felipe Magalhaes",
   "license": "ISC",
   "description": "This is a test nodejs app to follow with the udemy nodejs course",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.6.0",
+    "morgan": "^1.10.0"
+  },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/mongoose": "^5.11.96",
+    "@types/morgan": "^1.9.9",
     "@types/node": "^22.5.2",
+    "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   }
