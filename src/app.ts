@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import wRouter from "./routes/wRoutes.js";
+import AppError from "./utils/appError.js";
+import GlobalErrorHandler from "./controllers/errorController.js";
 
 const app = express();
 
@@ -13,11 +15,11 @@ app.use(express.json());
 // ROUTES
 app.use("/whatever", wRouter);
 
+// Catches the undefined routes
 app.all("*", (req, res, next) => {
-  res.status(404).json({
-    status: "fail",
-    message: `Can't find ${req.originalUrl} on this server!`,
-  });
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
+
+app.use(GlobalErrorHandler);
 
 export default app;
