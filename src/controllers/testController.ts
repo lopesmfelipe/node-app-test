@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, response } from "express";
-import catchAsync from "../utils/catchAsync";
+import catchAsync from "../utils/catchAsync.js";
 
 // GET TEST
 export const getTest = catchAsync(
