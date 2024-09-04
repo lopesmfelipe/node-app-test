@@ -3,7 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import wRouter from "./routes/wRoutes.js";
 import AppError from "./utils/appError.js";
-import GlobalErrorHandler from "./controllers/errorController.js";
+import GlobalErrorHandler from "./controllers/globalErrorHandler.js";
 
 const app = express();
 

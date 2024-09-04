@@ -1,11 +1,5 @@
 import { Request, Response, NextFunction, response } from "express";
-import { request } from "http";
-
-const catchAsync = (fn: any) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    fn(req, res, next).catch(next);
-  };
-};
+import catchAsync from "../utils/catchAsync";
 
 // GET TEST
 export const getTest = catchAsync(

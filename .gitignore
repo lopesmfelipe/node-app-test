@@ -95,6 +95,8 @@ jspm_packages/
 .env.test
 .env.production
 
+config.env
+
 # nyc test coverage
 .nyc_output
 
