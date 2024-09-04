@@ -1,4 +1,8 @@
-// Error Handlers
+import mongoose from "mongoose";
+import app from "./app.js";
+import dotenv from "dotenv";
+
+// Error Handler
 process.on("uncaughtException", (err) => {
   const msg = `UNCAUGHTEXCEPTION! Shutting down... ${err.name}, ${err.message}.`;
   console.log(msg);
@@ -6,12 +10,23 @@ process.on("uncaughtException", (err) => {
 });
 
 // Application code
-import app from "./app.js";
+dotenv.config({ path: "./config.env" });
 
-const port = 3000;
+const DB = process.env.DATABASE;
+const PORT = process.env.PORT || 3000;
 
-const server = app.listen(port, () => {
-  console.log(`** App running on PORT ${port} **`);
+if (!DB) {
+  throw new Error(
+    "Database connection string is not defined in environment variables."
+  );
+}
+
+// Connect to database
+mongoose.connect(DB).then(() => console.log("DB CONNECTED SUCCESSFULLY"));
+
+// Start server
+const server = app.listen(PORT, () => {
+  console.log(`** App running on PORT ${PORT} **`);
 });
 
 // Setup for handling unhandled promise rejections
