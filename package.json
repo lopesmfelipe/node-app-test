@@ -7,6 +7,7 @@
     "start": "node dist/server.js",
     "build": "tsc",
     "dev": "nodemon --exec \"node --loader ts-node/esm\" src/server.ts",
+    "prod": "cross-env NODE_ENV=production nodemon --exec \"node --loader ts-node/esm\" src/server.ts",
     "debug": "ndb dist/server.js"
   },
   "keywords": [],
@@ -26,6 +27,7 @@
     "@types/mongoose": "^5.11.96",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.5.2",
+    "cross-env": "^7.0.3",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
