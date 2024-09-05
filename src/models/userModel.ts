@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 import validator from "validator";
+import bcrypt from "bcrypt";
 
 // Define an interface for the User document
 interface IUser extends Document {
   email: string;
   password: string;
-  passwordConfirm: string;
+  passwordConfirm?: string;
   name: string;
   role: string;
   photo?: string;
@@ -39,6 +40,18 @@ const userSchema = new mongoose.Schema<IUser>({
   name: { type: String, required: [true, "Please provide your name"] },
   role: { type: String, default: "user" },
   photo: String,
+});
+
+userSchema.pre("save", async function (next) {
+  // Only run this function if password was actually modified
+  if (!this.isModified("password")) return next();
+
+  // Hash the password with cost of 12
+  this.password = await bcrypt.hash(this.password, 12);
+
+  // Delete passwordConfirm field
+  this.passwordConfirm = undefined; // We only need the passwordConfirm for the validation It's a required input, but don't need to be persisted to the database
+  next();
 });
 
 const User = mongoose.model("User", userSchema);
