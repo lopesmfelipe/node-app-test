@@ -27,7 +27,7 @@ mongoose.connect(DB).then(() => console.log("DB CONNECTED SUCCESSFULLY"));
 
 // Start server
 const server = app.listen(PORT, () => {
-  console.log(`** App running on PORT ${PORT} **`);
+  console.log(`🟢 App running on PORT ${PORT}`);
 });
 
 // handling unhandled promise rejections
