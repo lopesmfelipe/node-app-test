@@ -17,11 +17,12 @@ app.use(express.json());
 app.use("/whatever", wRouter);
 app.use("/user", userRoutes);
 
-// Catches the undefined routes
+// Catch-all for undefined routes
 app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
+// GLOBAL ERROR HANDLER
 app.use(GlobalErrorHandler);
 
 export default app;

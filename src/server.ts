@@ -4,12 +4,13 @@ import dotenv from "dotenv";
 
 // Error Handler
 process.on("uncaughtException", (err) => {
-  const msg = `UNCAUGHTEXCEPTION! Shutting down... ${err.name}, ${err.message}.`;
+  const msg = `UNCAUGHTEXCEPTION📢! Shutting down... ${err.name}, ${err.message}.`;
   console.log(msg);
   process.exit(1);
 });
 
 // Application code
+
 dotenv.config({ path: "./config.env" });
 
 const DB = process.env.DATABASE;
@@ -29,10 +30,9 @@ const server = app.listen(PORT, () => {
   console.log(`** App running on PORT ${PORT} **`);
 });
 
-// Setup for handling unhandled promise rejections
+// handling unhandled promise rejections
 process.on("unhandledRejection", (err: any) => {
-  const msg = `UNHANDLED REJECTION! Shutting down... ${err.name}, ${err.message}.`;
-  console.log(msg);
+  console.log(`UNHANDLED REJECTION📢! Shutting down. ${err.name}, ${err.message}.`);
   server.close(() => {
     process.exit(1);
   });
