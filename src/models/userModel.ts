@@ -10,6 +10,7 @@ interface IUser extends Document {
   name: string;
   role: string;
   photo?: string;
+  correctPassword(candidatePassword: string, userPassword: string): Promise<boolean>;
 }
 
 // Define the User schema
@@ -54,6 +55,13 @@ userSchema.pre("save", async function (next) {
   this.passwordConfirm = undefined; // We only need the passwordConfirm for the validation It's a required input, but don't need to be persisted to the database
   next();
 });
+
+userSchema.methods.correctPassword = async function (
+  candidatePassword: any,
+  userPassword: any
+): Promise<boolean> {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
 
 const User = mongoose.model("User", userSchema);
 
