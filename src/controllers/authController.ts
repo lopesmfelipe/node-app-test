@@ -91,8 +91,18 @@ export const Protect = catchAsync(
     const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
     // 3) Check if user still exists
+    const freshUser = await User.findById(decoded.id);
+    if (!freshUser) {
+      return next(
+        new AppError(
+          "The user belonging to this token does no longer exists",
+          401
+        )
+      );
+    }
 
     // 4) Check if user changed password after the token was issued
+
     next();
   }
 );

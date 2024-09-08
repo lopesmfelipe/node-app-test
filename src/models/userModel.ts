@@ -10,7 +10,11 @@ interface IUser extends Document {
   name: string;
   role: string;
   photo?: string;
-  correctPassword(candidatePassword: string, userPassword: string): Promise<boolean>;
+  passwordChangedAt: Date;
+  correctPassword(
+    candidatePassword: string,
+    userPassword: string
+  ): Promise<boolean>;
 }
 
 // Define the User schema
@@ -42,6 +46,7 @@ const userSchema = new mongoose.Schema<IUser>({
   name: { type: String, required: [true, "Please provide your name"] },
   role: { type: String, default: "user" },
   photo: String,
+  passwordChangedAt: Date,
 });
 
 userSchema.pre("save", async function (next) {
@@ -61,6 +66,14 @@ userSchema.methods.correctPassword = async function (
   userPassword: any
 ): Promise<boolean> {
   return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimeStamp: any) {
+  if (this.passwordChangedAt) {
+    console.log("🧊 ",this.passwordChangedAt, JWTTimeStamp);
+  } 
+    
+    return false;
 };
 
 const User = mongoose.model("User", userSchema);
