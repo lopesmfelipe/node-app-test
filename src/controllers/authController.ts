@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction } from "express";
 import User from "../models/userModel.js";
 import catchAsync from "../utils/catchAsync.js";
-import jwt = require("jsonwebtoken");
+import jwt, { JwtPayload } from "jsonwebtoken";
 import AppError from "../utils/appError.js";
 import dotenv from "dotenv";
 dotenv.config();
@@ -10,11 +10,9 @@ const jwtSecret = process.env.JWT_SECRET;
 const jwtExpiresIn = process.env.JWT_EXPIRES_IN;
 
 if (!jwtSecret || !jwtExpiresIn) {
-   console.log("hello")
-  
-  throw new Error(
-    "🔶 No environment variables"
-  );
+  console.log("hello");
+
+  throw new Error("🔶 No environment variables");
 }
 
 const signToken = (id: any): string => {
@@ -23,6 +21,7 @@ const signToken = (id: any): string => {
   });
 };
 
+// SIGNUP
 export const signup = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const newUser = await User.create({
@@ -42,6 +41,7 @@ export const signup = catchAsync(
   }
 );
 
+// LOGIN
 export const login = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
@@ -64,5 +64,35 @@ export const login = catchAsync(
       status: "success",
       token,
     });
+  }
+);
+
+// PROTECTING ROUTES
+export const Protect = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1) Getting token and check if it's there
+    let token;
+
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+    console.log(token);
+
+    if (!token) {
+      return next(
+        new AppError("You are not logged in! Please log in to get access.", 401)
+      );
+    }
+
+    // 2) Token verification
+    const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
+
+    // 3) Check if user still exists
+
+    // 4) Check if user changed password after the token was issued
+    next();
   }
 );
