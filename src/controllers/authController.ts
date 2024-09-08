@@ -3,17 +3,23 @@ import User from "../models/userModel.js";
 import catchAsync from "../utils/catchAsync.js";
 import jwt = require("jsonwebtoken");
 import AppError from "../utils/appError.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const jwtSecret = process.env.JWT_SECRET;
-const expiresIn = process.env.JWT_EXPIRES_IN;
+const jwtExpiresIn = process.env.JWT_EXPIRES_IN;
 
-if (!jwtSecret || !expiresIn) {
-  throw new Error("JWT_SECRET is not defined in environment variables");
+if (!jwtSecret || !jwtExpiresIn) {
+   console.log("hello")
+  
+  throw new Error(
+    "🔶 No environment variables"
+  );
 }
 
 const signToken = (id: any): string => {
   return jwt.sign({ id }, jwtSecret, {
-    expiresIn: expiresIn,
+    expiresIn: jwtExpiresIn,
   });
 };
 

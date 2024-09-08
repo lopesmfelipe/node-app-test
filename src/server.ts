@@ -10,9 +10,7 @@ process.on("uncaughtException", (err) => {
 });
 
 // Application code
-
-dotenv.config({ path: "./config.env" });
-
+dotenv.config();
 const DB = process.env.DATABASE;
 const PORT = process.env.PORT || 3000;
 
@@ -32,7 +30,9 @@ const server = app.listen(PORT, () => {
 
 // handling unhandled promise rejections
 process.on("unhandledRejection", (err: any) => {
-  console.log(`UNHANDLED REJECTION📢! Shutting down. ${err.name}, ${err.message}.`);
+  console.log(
+    `UNHANDLED REJECTION📢! Shutting down. ${err.name}, ${err.message}.`
+  );
   server.close(() => {
     process.exit(1);
   });
