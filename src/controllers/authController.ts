@@ -123,9 +123,20 @@ export const protect = catchAsync(
 );
 
 // RESTRICT
-export const restrictTo = (...roles) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    // roles ['admin']
-  }
-}
 
+// '...roles' create an array ['admin', 'moderator'] of all the arguments that were specified
+export const restrictTo = (...roles: any) => {
+  // This is the middleware function itself that the wrapper function 'restrictTo' returns, which then has access to '...roles'
+  return async (req: CustomRequest, res: Response, next: NextFunction) => {
+    if (!req.user) return next(new AppError("No user found in Request", 400));
+
+    // Check if user's role included in the allowed roles
+    if (!roles.includes(req.user.role)) {
+      return next(  
+        new AppError("You do not have permission to perform this action", 403)
+      );
+    }
+
+    next();
+  };
+};

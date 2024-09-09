@@ -15,6 +15,9 @@ export const getAllUsers = catchAsync(
 
 export const deleteUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    res.status(204).send();
+    res.status(250).json({
+      status: "success",
+      message: "User artificially deleted",
+    });
   }
 );
