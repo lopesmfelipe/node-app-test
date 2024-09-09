@@ -3,14 +3,14 @@ import validator from "validator";
 import bcrypt from "bcryptjs";
 
 // Define an interface for the User document
-export interface IUser extends Document {
+export interface IUser extends mongoose.Document {
   email: string;
   password: string;
   passwordConfirm?: string;
   name: string;
   role: string;
   photo?: string;
-  passwordChangedAt: Date;
+  passwordChangedAt?: Date;
   correctPassword(
     candidatePassword: string,
     userPassword: string
@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema<IUser>({
     unique: true,
     lowercase: true,
     validate: [validator.isEmail, "Please provide a valid email"],
+  },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
   },
   password: {
     type: String,
@@ -45,7 +50,6 @@ const userSchema = new mongoose.Schema<IUser>({
     },
   },
   name: { type: String, required: [true, "Please provide your name"] },
-  role: { type: String, default: "user" },
   photo: String,
   passwordChangedAt: { type: Date },
 });

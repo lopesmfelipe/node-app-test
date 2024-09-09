@@ -36,6 +36,7 @@ export const signup = catchAsync(
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
       passwordChangedAt: req.body.passwordChangedAt,
+      role: req.body.role,
     });
 
     const token = signToken(newUser._id);
@@ -75,7 +76,7 @@ export const login = catchAsync(
 );
 
 // PROTECT
-export const Protect = catchAsync(
+export const protect = catchAsync(
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     // 1) Getting token and check if it's there
     let token;
@@ -119,4 +120,9 @@ export const Protect = catchAsync(
     req.user = currentUser; // Pass the user data in the Request object
     next();
   }
+);
+
+// RESTRICT
+export const restrictTo = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {}
 );

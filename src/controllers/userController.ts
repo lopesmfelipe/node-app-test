@@ -12,3 +12,9 @@ export const getAllUsers = catchAsync(
     });
   }
 );
+
+export const deleteUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    res.status(204).send();
+  }
+);
