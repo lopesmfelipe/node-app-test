@@ -71,7 +71,11 @@ userSchema.methods.correctPassword = async function (
 
 userSchema.methods.changedPasswordAfter = async function (JWTTimeStamp: any) {
   if (this.passwordChangedAt) {
-    console.log("🧊 THOSE ARE ", this.passwordChangedAt, JWTTimeStamp);
+    const passwordChangedTimeStamp = Math.round(
+      this.passwordChangedAt.getTime() / 1000
+    );
+
+    return JWTTimeStamp < passwordChangedTimeStamp; // 500 < 100 return false, which means the token/jwt was generated after the password change
   }
 
   return false;

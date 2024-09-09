@@ -68,7 +68,7 @@ export const login = catchAsync(
   }
 );
 
-// PROTECTING ROUTES
+// PROTECT
 export const Protect = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // 1) Getting token and check if it's there
@@ -92,8 +92,8 @@ export const Protect = catchAsync(
     const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
     // 3) Check if user still exists
-    const freshUser = await User.findById(decoded.id);
-    if (!freshUser) {
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
       return next(
         new AppError(
           "The user belonging to this token does no longer exists",
@@ -103,8 +103,13 @@ export const Protect = catchAsync(
     }
 
     // 4) Check if user changed password after the token was issued
-    freshUser.changedPasswordAfter(decoded.iat);
+    if (await currentUser.changedPasswordAfter(decoded.iat)) {
+      return next(
+        new AppError("User recently changed password! Please log in again", 401)
+      );
+    }
 
+    // GRANT ACCESS TO PROTECTED ROUTE
     next();
   }
 );
