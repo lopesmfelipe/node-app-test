@@ -143,15 +143,19 @@ export const restrictTo = (...roles: any) => {
 export const forgotPassword = catchAsync(
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     // 1) Get user based on POSTED email
-    const user = User.findOne({ email: req.body.email });
-    if (!user) return next(new AppError('No user found with this email address', 404))
+    const user = (await User.findOne({ email: req.body.email })) as IUser;
+    if (!user)
+      return next(new AppError("No user found with this email address", 404));
 
     // 2) Generate reset token
-    const  resetToken = user.createPasswordResetToken();
-    
-    
-    
+    const resetToken = user.createPasswordResetToken();
+    await user.save({ validateBeforeSave: false });
+
     // 3) Send token to user
+    res.status(200).json({
+      status: "success",
+      resetToken,
+    });
   }
 );
 

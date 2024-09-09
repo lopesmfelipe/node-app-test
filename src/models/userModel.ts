@@ -19,6 +19,8 @@ export interface IUser extends mongoose.Document {
     userPassword: string
   ): Promise<boolean>;
   changedPasswordAfter(JWTTimeStamp: any): Promise<boolean>;
+  createPasswordResetToken(): Promise<any>;
+
 }
 
 // Define the User schema
@@ -91,6 +93,7 @@ userSchema.methods.changedPasswordAfter = async function (JWTTimeStamp: any) {
   return false;
 };
 
+// CREATE PASSWORD RESET TOKEN
 userSchema.methods.createPasswordResetToken = async function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
 
