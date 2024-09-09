@@ -123,7 +123,6 @@ export const protect = catchAsync(
 );
 
 // RESTRICT
-
 // '...roles' create an array ['admin', 'moderator'] of all the arguments that were specified
 export const restrictTo = (...roles: any) => {
   // This is the middleware function itself that the wrapper function 'restrictTo' returns, which then has access to '...roles'
@@ -132,7 +131,7 @@ export const restrictTo = (...roles: any) => {
 
     // Check if user's role included in the allowed roles
     if (!roles.includes(req.user.role)) {
-      return next(  
+      return next(
         new AppError("You do not have permission to perform this action", 403)
       );
     }
@@ -140,3 +139,22 @@ export const restrictTo = (...roles: any) => {
     next();
   };
 };
+
+export const forgotPassword = catchAsync(
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    // 1) Get user based on POSTED email
+    const user = User.findOne({ email: req.body.email });
+    if (!user) return next(new AppError('No user found with this email address', 404))
+
+    // 2) Generate reset token
+    const  resetToken = user.createPasswordResetToken();
+    
+    
+    
+    // 3) Send token to user
+  }
+);
+
+export const resetPassword = catchAsync(
+  async (req: CustomRequest, res: Response, next: NextFunction) => {}
+);

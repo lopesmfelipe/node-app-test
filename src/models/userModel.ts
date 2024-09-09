@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 // Define an interface for the User document
 export interface IUser extends mongoose.Document {
@@ -11,6 +12,8 @@ export interface IUser extends mongoose.Document {
   role: string;
   photo?: string;
   passwordChangedAt?: Date;
+  passwordResetToken: String;
+  passwordResetExpires: Date;
   correctPassword(
     candidatePassword: string,
     userPassword: string
@@ -52,6 +55,8 @@ const userSchema = new mongoose.Schema<IUser>({
   name: { type: String, required: [true, "Please provide your name"] },
   photo: String,
   passwordChangedAt: { type: Date },
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 userSchema.pre("save", async function (next) {
@@ -82,7 +87,22 @@ userSchema.methods.changedPasswordAfter = async function (JWTTimeStamp: any) {
     return JWTTimeStamp < passwordChangedTimeStamp; // 500 < 100 return false, which means the token/jwt was generated after the password change
   }
 
+  // false means NOT changed
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = async function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  console.log({ resetToken }, this.passwordResetToken);
+
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
 };
 
 const User = mongoose.model("User", userSchema);
