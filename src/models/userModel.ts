@@ -3,7 +3,7 @@ import validator from "validator";
 import bcrypt from "bcryptjs";
 
 // Define an interface for the User document
-interface IUser extends Document {
+export interface IUser extends Document {
   email: string;
   password: string;
   passwordConfirm?: string;

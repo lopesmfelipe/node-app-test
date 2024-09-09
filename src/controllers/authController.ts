@@ -1,9 +1,11 @@
 import { Response, Request, NextFunction } from "express";
+import { IUser } from "../models/userModel.js";
 import User from "../models/userModel.js";
 import catchAsync from "../utils/catchAsync.js";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import AppError from "../utils/appError.js";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 const jwtSecret = process.env.JWT_SECRET;
@@ -20,6 +22,10 @@ const signToken = (id: any): string => {
     expiresIn: jwtExpiresIn,
   });
 };
+
+interface CustomRequest extends Request {
+  user?: IUser;
+}
 
 // SIGNUP
 export const signup = catchAsync(
@@ -70,7 +76,7 @@ export const login = catchAsync(
 
 // PROTECT
 export const Protect = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
     // 1) Getting token and check if it's there
     let token;
 
@@ -110,6 +116,7 @@ export const Protect = catchAsync(
     }
 
     // GRANT ACCESS TO PROTECTED ROUTE
+    req.user = currentUser; // Pass the user data in the Request object
     next();
   }
 );
