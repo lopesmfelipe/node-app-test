@@ -123,6 +123,9 @@ export const protect = catchAsync(
 );
 
 // RESTRICT
-export const restrictTo = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {}
-);
+export const restrictTo = (...roles) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    // roles ['admin']
+  }
+}
+
