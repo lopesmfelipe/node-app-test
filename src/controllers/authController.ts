@@ -5,6 +5,7 @@ import catchAsync from "../utils/catchAsync.js";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import AppError from "../utils/appError.js";
 import dotenv from "dotenv";
+import sendEmail from "../utils/email.js";
 
 dotenv.config();
 
@@ -147,15 +148,41 @@ export const forgotPassword = catchAsync(
     if (!user)
       return next(new AppError("No user found with this email address", 404));
 
-    // 2) Generate reset token
-    const resetToken = user.createPasswordResetToken();
+    // 2) Generate random reset token
+    const resetToken = await user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
 
-    // 3) Send token to user
-    res.status(200).json({
-      status: "success",
-      resetToken,
-    });
+    // 3) Send token to user's email
+    const resetURL = `${req.protocol}://${req.get(
+      "host"
+    )}/user/reset-password/${resetToken}`;
+
+    const message = `Forgot your password? Submit a PATCH request with your new password and
+    passwordConfirm to: ${resetURL}.\n If you didn't forget your password, please ignore this email.`;
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: "Your password reset token (valid for 10 min)",
+        message,
+      });
+
+      res.status(200).json({
+        status: "success",
+        message: "Token sent to email!",
+      });
+    } catch (error) {
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return next(
+        new AppError(
+          "There was an error sending the email. Try again later",
+          500
+        )
+      );
+    }
   }
 );
 

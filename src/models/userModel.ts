@@ -12,15 +12,14 @@ export interface IUser extends mongoose.Document {
   role: string;
   photo?: string;
   passwordChangedAt?: Date;
-  passwordResetToken: String;
-  passwordResetExpires: Date;
+  passwordResetToken?: String;
+  passwordResetExpires?: Date;
   correctPassword(
     candidatePassword: string,
     userPassword: string
   ): Promise<boolean>;
   changedPasswordAfter(JWTTimeStamp: any): Promise<boolean>;
   createPasswordResetToken(): Promise<any>;
-
 }
 
 // Define the User schema
