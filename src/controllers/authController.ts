@@ -6,6 +6,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import AppError from "../utils/appError.js";
 import dotenv from "dotenv";
 import sendEmail from "../utils/email.js";
+import crypto from "crypto";
 
 dotenv.config();
 
@@ -186,15 +187,70 @@ export const forgotPassword = catchAsync(
   }
 );
 
+// RESET PASSWORD
 export const resetPassword = catchAsync(
   async (req: CustomRequest, res: Response, next: NextFunction) => {
     // 1) Get user based on the token
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(req.params.resetToken)
+      .digest("hex");
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken, // find the user for the token
+      passwordResetExpires: { $gt: Date.now() }, // check if token is expired
+    });
 
     // 2) If token has not expired, and there is user, set new password
+    if (!user) {
+      return next(new AppError("Token is invalid or has expired", 400));
+    }
 
-    // 3) Update changedPasswordAt property for the user
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    // 3) Update changedPasswordAt property for the user (done in the model)
 
     // 4) Log the user in, send JWT
+    const token = signToken(user._id);
 
+    res.status(200).json({
+      status: "success",
+      token,
+    });
+  }
+);
+
+// UPDATE PASSWORD (only for logged-in users)
+export const updatePassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // 1) Get user from collection and Check if posted current password is correct
+    const { email, password, newPassword, newPasswordConfirm } = req.body;
+
+    const user = await User.findOne({ email }).select("+password");
+
+    // compare passwords
+    if (!user || !(await user.correctPassword(password, user.password))) {
+      return next(
+        new AppError("No user found with this email or password", 404)
+      );
+    }
+
+    // 2) If so, update password
+    user.password = newPassword;
+    user.passwordConfirm = newPasswordConfirm;
+    await user.save();
+
+    // 3) Log user in, send JWT/token
+    const token = signToken(user._id);
+
+    res.status(201).json({
+      status: "success",
+      message: "Password updated successfully",
+      token,
+    });
   }
 );
