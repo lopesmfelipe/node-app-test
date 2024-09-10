@@ -187,5 +187,14 @@ export const forgotPassword = catchAsync(
 );
 
 export const resetPassword = catchAsync(
-  async (req: CustomRequest, res: Response, next: NextFunction) => {}
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    // 1) Get user based on the token
+
+    // 2) If token has not expired, and there is user, set new password
+
+    // 3) Update changedPasswordAt property for the user
+
+    // 4) Log the user in, send JWT
+
+  }
 );
