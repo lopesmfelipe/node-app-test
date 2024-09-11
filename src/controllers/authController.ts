@@ -29,6 +29,18 @@ interface CustomRequest extends Request {
   user?: IUser;
 }
 
+const createSendToken = (user: any, statusCode: any, res: Response) => {
+  const token = signToken(user._id);
+
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 // SIGNUP
 export const signup = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -41,13 +53,7 @@ export const signup = catchAsync(
       role: req.body.role,
     });
 
-    const token = signToken(newUser._id);
-
-    res.status(201).json({
-      token,
-      status: "success",
-      user: newUser,
-    });
+    createSendToken(newUser, 201, res);
   }
 );
 
@@ -68,12 +74,7 @@ export const login = catchAsync(
     }
 
     // 3) If everything ok, send token to client
-    const token = signToken(user._id);
-
-    res.status(200).json({
-      status: "success",
-      token,
-    });
+    createSendToken(user, 200, res);
   }
 );
 
@@ -215,42 +216,40 @@ export const resetPassword = catchAsync(
     // 3) Update changedPasswordAt property for the user (done in the model)
 
     // 4) Log the user in, send JWT
-    const token = signToken(user._id);
-
-    res.status(200).json({
-      status: "success",
-      token,
-    });
+    createSendToken(user, 200, res);
   }
 );
 
 // UPDATE PASSWORD (only for logged-in users)
 export const updatePassword = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    // 1) Get user from collection and Check if posted current password is correct
-    const { email, password, newPassword, newPasswordConfirm } = req.body;
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    // 1) Check if user exists in the request object
+    if (!req.user) {
+      return next(new AppError("User not found", 404));
+    }
+    
+    // 2) Get user from the database
+    const { currentPassword, newPassword, newPasswordConfirm } = req.body;
+    const user = await User.findById(req.user.id).select("+password");
 
-    const user = await User.findOne({ email }).select("+password");
+    // Check if the user exists after fetching
+    if (!user) {
+      return next(new AppError("User not found", 404));
+    }
 
-    // compare passwords
-    if (!user || !(await user.correctPassword(password, user.password))) {
+    // 3) Check if posted current password is correct
+    if (!(await user.correctPassword(currentPassword, user.password))) {
       return next(
-        new AppError("No user found with this email or password", 404)
+        new AppError("No user found with this email or password", 401)
       );
     }
 
-    // 2) If so, update password
+    // 4) update password
     user.password = newPassword;
     user.passwordConfirm = newPasswordConfirm;
     await user.save();
 
-    // 3) Log user in, send JWT/token
-    const token = signToken(user._id);
-
-    res.status(201).json({
-      status: "success",
-      message: "Password updated successfully",
-      token,
-    });
+    // 5) Log user in, send JWT/token
+    createSendToken(user, 200, res);
   }
 );

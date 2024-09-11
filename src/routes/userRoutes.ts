@@ -16,7 +16,7 @@ router.route("/signup").post(signup);
 router.route("/login").post(login);
 router.route("/forgot-password").post(forgotPassword);
 router.route("/reset-password/:resetToken").patch(resetPassword);
-router.route("/update-password").post(updatePassword);
+router.route("/update-password").patch(protect, updatePassword);
 
 router.route("/get-all-users").get(protect, getAllUsers);
 // the 'restrictTo()' function will then run and return the middleware function itself
