@@ -13,6 +13,12 @@ export const getAllUsers = catchAsync(
   }
 );
 
+export const updateMe = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    
+  }
+);
+
 export const deleteUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     res.status(250).json({
