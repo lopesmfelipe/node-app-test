@@ -102,7 +102,7 @@ export const protect = catchAsync(
     const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
     // 3) Check if user still exists
-    const currentUser = await User.findById(decoded.id);
+    const currentUser = await User.findById(decoded.id).select("+password");
     if (!currentUser) {
       return next(
         new AppError(
@@ -227,29 +227,21 @@ export const updatePassword = catchAsync(
     if (!req.user) {
       return next(new AppError("User not found", 404));
     }
-    
+
     // 2) Get user from the database
     const { currentPassword, newPassword, newPasswordConfirm } = req.body;
-    const user = await User.findById(req.user.id).select("+password");
-
-    // Check if the user exists after fetching
-    if (!user) {
-      return next(new AppError("User not found", 404));
-    }
 
     // 3) Check if posted current password is correct
-    if (!(await user.correctPassword(currentPassword, user.password))) {
-      return next(
-        new AppError("No user found with this email or password", 401)
-      );
+    if (!(await req.user.correctPassword(currentPassword, req.user.password))) {
+      return next(new AppError("Incorrect email or password", 401));
     }
 
     // 4) update password
-    user.password = newPassword;
-    user.passwordConfirm = newPasswordConfirm;
-    await user.save();
+    req.user.password = newPassword;
+    req.user.passwordConfirm = newPasswordConfirm;
+    await req.user.save();
 
     // 5) Log user in, send JWT/token
-    createSendToken(user, 200, res);
+    createSendToken(req.user, 200, res);
   }
 );
