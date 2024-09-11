@@ -8,7 +8,11 @@ import {
   resetPassword,
   updatePassword,
 } from "../controllers/authController.js";
-import { deleteUser, getAllUsers } from "../controllers/userController.js";
+import {
+  deleteUser,
+  getAllUsers,
+  updateUserData,
+} from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -17,6 +21,7 @@ router.route("/login").post(login);
 router.route("/forgot-password").post(forgotPassword);
 router.route("/reset-password/:resetToken").patch(resetPassword);
 router.route("/update-password").patch(protect, updatePassword);
+router.route("/update-user-data").patch(protect, updateUserData);
 
 router.route("/get-all-users").get(protect, getAllUsers);
 // the 'restrictTo()' function will then run and return the middleware function itself
