@@ -5,6 +5,8 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
 import xss from "xss-clean";
+import hpp from "hpp";
+
 import wRouter from "./routes/whateverRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import AppError from "./utils/appError.js";
@@ -43,6 +45,13 @@ app.use(mongoSanitize());
 
 // Clean any user input from malicious HTML code
 app.use(xss());
+
+// Prevent parameter pollution(clear up the query string(for example: sort=2232322&sort=email)
+app.use(
+  hpp({
+    whitelist: ["duration"], // Fields allowed to be duplicated in the query string
+  })
+);
 
 // ROUTES
 app.use("/whatever", wRouter);
