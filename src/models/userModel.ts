@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Query } from "mongoose";
 import validator from "validator";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -14,6 +14,7 @@ export interface IUser extends mongoose.Document {
   passwordChangedAt?: Date;
   passwordResetToken?: String;
   passwordResetExpires?: Date;
+  active: boolean;
   correctPassword(
     candidatePassword: string,
     userPassword: string
@@ -58,7 +59,16 @@ const userSchema = new mongoose.Schema<IUser>({
   passwordChangedAt: { type: Date },
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
+
+interface IActiveQuery extends Query<any, IUser> {
+  findActive(): this;
+}
 
 // PRE SAVE MIDDLEWARES
 userSchema.pre("save", async function (next) {
@@ -76,7 +86,13 @@ userSchema.pre("save", async function (next) {
 userSchema.pre("save", function (next) {
   if (!this.isModified("password") || this.isNew) return next();
 
-  this.passwordChangedAt = new Date(Date.now() - 1000); // subtract 1 second to account for any possible delay 
+  this.passwordChangedAt = new Date(Date.now() - 1000); // subtract 1 second to account for any possible delay
+  next();
+});
+
+// This points to the current query
+userSchema.pre<IActiveQuery>(/^hfind/, function (next) {
+  this.find({ active: true });
   next();
 });
 
@@ -88,6 +104,7 @@ userSchema.methods.correctPassword = async function (
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
+// CHECK IF PASSWORD WAS CHANGED AFTER THE TOKEN WAS SENT
 userSchema.methods.changedPasswordAfter = async function (JWTTimeStamp: any) {
   if (this.passwordChangedAt) {
     const passwordChangedTimeStamp = Math.round(
@@ -116,6 +133,6 @@ userSchema.methods.createPasswordResetToken = async function () {
   return resetToken;
 };
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model<IUser>("User", userSchema);
 
 export default User;

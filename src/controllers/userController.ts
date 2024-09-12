@@ -15,6 +15,7 @@ const filterObj = (obj: any, allowedFields: string[]) => {
   return newObj;
 };
 
+// GET ALL USERS
 export const getAllUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const users = await User.find();
@@ -57,11 +58,16 @@ export const updateUserData = catchAsync(
   }
 );
 
-export const deleteUser = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    res.status(250).json({
+// DELETE USER
+export const deleteMe = catchAsync(
+  async (req: CustomRequest, res: Response, next: NextFunction) => {
+    if (!req.user) return next(new AppError("User not found", 404));
+
+    await User.findByIdAndUpdate(req.user.id, { active: false });
+
+    res.status(204).json({
       status: "success",
-      message: "User artificially deleted",
+      data: null,
     });
   }
 );
