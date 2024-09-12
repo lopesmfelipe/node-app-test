@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "types": ["node", "xss-clean"],
     "target": "ESNext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -12,8 +14,7 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "allowJs": true,
-
+    "allowJs": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
