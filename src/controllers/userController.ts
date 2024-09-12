@@ -42,7 +42,7 @@ export const updateUserData = catchAsync(
       );
     }
 
-    const filteredBody = filterObj(req.body, ["email", "name"]);
+    const filteredBody = filterObj(req.body, ["email", "name", "active"]);
 
     // 2) Update user document
     const updatedUser = await User.findOneAndUpdate(

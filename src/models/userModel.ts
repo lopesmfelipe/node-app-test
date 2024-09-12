@@ -90,9 +90,10 @@ userSchema.pre("save", function (next) {
   next();
 });
 
-// This points to the current query
-userSchema.pre<IActiveQuery>(/^hfind/, function (next) {
-  this.find({ active: true });
+// QUERY MIDDLEWARE
+userSchema.pre<Query<IUser, IUser>>(/^find/, function (next) {
+  // This points to the current query
+  this.where({ active: { $ne: false } });
   next();
 });
 
